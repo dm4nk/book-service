@@ -55,9 +55,22 @@ def unassign_customer(book_id):
 
 @app.route('/api/v1/book', methods=['GET'])
 def get_books():
-    books = Book.query.all()
+    author = request.args.get('author', '')
+    name = request.args.get('name', '')
+
+    query = Book.query
+
+    if author:
+        query = query.filter(Book.author.ilike(f"%{author}%"))
+
+    if name:
+        query = query.filter(Book.name.ilike(f"%{name}%"))
+
+    books = query.all()
+
     return jsonify(
-        [{"id": book.id, "name": book.name, "author": book.author, "customerId": book.customer_id} for book in books])
+        [{"id": book.id, "name": book.name, "author": book.author, "customerId": book.customer_id} for book in books]
+    )
 
 
 if __name__ == '__main__':
